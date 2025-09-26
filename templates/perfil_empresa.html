@@ -9,6 +9,19 @@
             </div>
         </div>
 
+        <div class="perfil-section" style="margin-bottom:25px;">
+            <h3 style="color:#3498db; border-bottom:1px solid #ccc; padding-bottom:5px;">✏️ Editar información</h3>
+            <form action="{{ url_for('editar_perfil_empresa', file_id=file_id) }}" method="post" style="display:flex; flex-direction:column; gap:10px;">
+                <input type="text" name="empresa" placeholder="Empresa" value="{{ extraido.empresa }}">
+                <input type="text" name="vacante" placeholder="Vacante" value="{{ extraido.vacante }}">
+                <input type="text" name="requisitos" placeholder="Requisitos (separados por coma)" value="{{ extraido.requisitos | join(', ') }}">
+                <input type="text" name="ubicacion" placeholder="Ubicación" value="{{ extraido.ubicacion }}">
+                <input type="text" name="tipo_contrato" placeholder="Tipo de contrato" value="{{ extraido.tipo_contrato }}">
+                <input type="text" name="correo" placeholder="Correo de contacto" value="{{ extraido.correo }}">
+                <button type="submit">Guardar cambios</button>
+            </form>
+        </div>
+
         <h3 style="color:#3498db; border-bottom:1px solid #ccc; padding-bottom:5px;">🏆 Top 10 candidatos</h3>
         {% if top %}
         <table>

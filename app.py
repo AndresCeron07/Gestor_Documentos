@@ -158,8 +158,34 @@ def perfil(file_id):
 
     return render_template("perfil.html",
         datos=archivo.metadata.get("extraido", {}),
-        nombre=archivo.filename
+        nombre=archivo.filename,
+        file_id=file_id
     )
+
+# ✏️ Editar perfil de candidato
+@app.route("/perfil/<file_id>/editar", methods=["POST"])
+def editar_perfil(file_id):
+    db = get_db("hoja_vida")
+    # Parseo de listas separadas por coma
+    def parse_list(valor):
+        if not valor:
+            return []
+        return [v.strip() for v in valor.split(",") if v.strip()]
+
+    set_ops = {
+        "metadata.extraido.nombre": request.form.get("nombre") or None,
+        "metadata.extraido.carrera": request.form.get("carrera") or None,
+        "metadata.extraido.semestre": request.form.get("semestre") or None,
+        "metadata.extraido.telefono": request.form.get("telefono") or None,
+        "metadata.extraido.correo": request.form.get("correo") or None,
+        "metadata.extraido.direccion": request.form.get("direccion") or None,
+        "metadata.extraido.habilidades": parse_list(request.form.get("habilidades")),
+        "metadata.extraido.conocimientos": parse_list(request.form.get("conocimientos")),
+        "metadata.extraido.idiomas": parse_list(request.form.get("idiomas"))
+    }
+
+    db.fs.files.update_one({"_id": ObjectId(file_id)}, {"$set": set_ops})
+    return redirect(url_for("perfil", file_id=file_id))
 
 # 🧾 Perfil de empresa con top 10 candidatos
 @app.route("/empresa/<file_id>")
@@ -176,8 +202,31 @@ def perfil_empresa(file_id):
         empresa=resultado.get("empresa"),
         vacante=resultado.get("vacante"),
         correo=resultado.get("correo"),
-        top=resultado.get("top", [])
+        top=resultado.get("top", []),
+        extraido=datos,
+        file_id=file_id
     )
+
+# ✏️ Editar perfil de empresa
+@app.route("/empresa/<file_id>/editar", methods=["POST"])
+def editar_perfil_empresa(file_id):
+    db = get_db("solicitud_empresa")
+    def parse_list(valor):
+        if not valor:
+            return []
+        return [v.strip() for v in valor.split(",") if v.strip()]
+
+    set_ops = {
+        "metadata.extraido.empresa": request.form.get("empresa") or None,
+        "metadata.extraido.vacante": request.form.get("vacante") or None,
+        "metadata.extraido.requisitos": parse_list(request.form.get("requisitos")),
+        "metadata.extraido.ubicacion": request.form.get("ubicacion") or None,
+        "metadata.extraido.tipo_contrato": request.form.get("tipo_contrato") or None,
+        "metadata.extraido.correo": request.form.get("correo") or None
+    }
+
+    db.fs.files.update_one({"_id": ObjectId(file_id)}, {"$set": set_ops})
+    return redirect(url_for("perfil_empresa", file_id=file_id))
 
 # 🚀 Ejecutar servidor
 if __name__ == "__main__":

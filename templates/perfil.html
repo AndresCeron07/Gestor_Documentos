@@ -45,5 +45,21 @@
                 {% endfor %}
             </ul>
         </div>
+
+        <div class="perfil-section" style="margin-top:35px;">
+            <h3 style="color:#3498db; border-bottom:1px solid #ccc; padding-bottom:5px;">✏️ Editar información</h3>
+            <form action="{{ url_for('editar_perfil', file_id=file_id) }}" method="post" style="display:flex; flex-direction:column; gap:10px;">
+                <input type="text" name="nombre" placeholder="Nombre" value="{{ datos.nombre }}">
+                <input type="text" name="carrera" placeholder="Carrera" value="{{ datos.carrera }}">
+                <input type="text" name="semestre" placeholder="Semestre" value="{{ datos.semestre }}">
+                <input type="text" name="telefono" placeholder="Teléfono" value="{{ datos.telefono }}">
+                <input type="text" name="correo" placeholder="Correo" value="{{ datos.correo }}">
+                <input type="text" name="direccion" placeholder="Dirección" value="{{ datos.direccion }}">
+                <input type="text" name="habilidades" placeholder="Habilidades (separadas por coma)" value="{{ datos.habilidades | join(', ') }}">
+                <input type="text" name="conocimientos" placeholder="Conocimientos (separados por coma)" value="{{ datos.conocimientos | join(', ') }}">
+                <input type="text" name="idiomas" placeholder="Idiomas (separados por coma)" value="{{ datos.idiomas | join(', ') }}">
+                <button type="submit">Guardar cambios</button>
+            </form>
+        </div>
     </div>
 {% endblock %}
