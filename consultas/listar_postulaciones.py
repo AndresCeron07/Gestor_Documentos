@@ -3,24 +3,22 @@ from datetime import datetime
 
 def listar_postulaciones(retornar=False, filtro_estado=None):
     db_postulaciones = get_db("postulaciones")
-    archivos = db_postulaciones.fs.files.find().sort("uploadDate", -1)
+    col = db_postulaciones["postulaciones"]
+    filtros = {}
+    if filtro_estado:
+        filtros["estado"] = filtro_estado
+    archivos = col.find(filtros).sort("fecha", -1)
 
     resultados = []
 
     for archivo in archivos:
-        meta = archivo.get("metadata", {})
-        estado = meta.get("estado", "Sin estado")
-
-        if filtro_estado and filtro_estado.lower() != estado.lower():
-            continue
-
         resultados.append({
-            "fecha": meta.get("fecha", datetime.min),
-            "correo": meta.get("correo_candidato", "Desconocido"),
-            "empresa": meta.get("empresa", "Desconocida"),
-            "vacante": meta.get("vacante", "Sin vacante"),
-            "score": meta.get("score", 0),
-            "estado": estado
+            "fecha": archivo.get("fecha", datetime.min),
+            "correo": archivo.get("correo_candidato", "Desconocido"),
+            "empresa": archivo.get("empresa", "Desconocida"),
+            "vacante": archivo.get("vacante", "Sin vacante"),
+            "score": archivo.get("score", 0),
+            "estado": archivo.get("estado", "Sin estado")
         })
 
     if retornar:

@@ -1,9 +1,13 @@
 import google.generativeai as genai
 import json
 import re
+import os
 
-# 🔐 Configura tu clave de API de Gemini
-genai.configure(api_key="AIzaSyA7LFsEb5BzbxdsP0-rKbSQM3_E0Mazin8")
+# 🔐 Configura tu clave de API de Gemini desde entorno
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise RuntimeError("GEMINI_API_KEY no está definido en el entorno")
+genai.configure(api_key=api_key)
 
 # 🧼 Limpia delimitadores de código en respuestas
 def limpiar_json(texto):
