@@ -185,6 +185,35 @@ def emparejar_individual_empresa(doc):
         "compatibles": resultados
     }
 
+# 🏢 Calcular top N candidatos para una empresa (sin registrar postulaciones)
+def calcular_top_candidatos_para_empresa(doc, limite=10):
+    empresa, vacante, vacante_norm, contexto, correo_empresa = extraer_vacante(doc)
+    db_candidatos = get_db("hoja_vida")
+    candidatos = list(db_candidatos.fs.files.find({}, {"metadata": 1, "filename": 1}))
+
+    resultados = []
+
+    for destino in candidatos:
+        nombre, correo, carrera, conocimientos = extraer_perfil(destino)
+        score, score_pct, razones = evaluar_compatibilidad(carrera, conocimientos, contexto, vacante_norm)
+        if score > 0:
+            resultados.append({
+                "nombre": nombre,
+                "correo": correo,
+                "carrera": carrera,
+                "score": score_pct,
+                "razones": razones
+            })
+
+    resultados = sorted(resultados, key=lambda x: x["score"], reverse=True)[:limite]
+
+    return {
+        "empresa": empresa,
+        "vacante": vacante,
+        "correo": correo_empresa,
+        "top": resultados
+    }
+
 # 🖥️ Consola: Emparejamiento masivo
 def emparejar_desde_consola(modo="candidato"):
     resultados = emparejar_web(modo)

@@ -161,6 +161,24 @@ def perfil(file_id):
         nombre=archivo.filename
     )
 
+# 🧾 Perfil de empresa con top 10 candidatos
+@app.route("/empresa/<file_id>")
+def perfil_empresa(file_id):
+    from consultas.emparejar import calcular_top_candidatos_para_empresa
+    db = get_db("solicitud_empresa")
+    fs = gridfs.GridFS(db)
+    archivo = fs.find_one({"_id": ObjectId(file_id)})
+    if not archivo:
+        return "Empresa no encontrada", 404
+    datos = archivo.metadata.get("extraido", {})
+    resultado = calcular_top_candidatos_para_empresa(archivo, limite=10)
+    return render_template("perfil_empresa.html",
+        empresa=resultado.get("empresa"),
+        vacante=resultado.get("vacante"),
+        correo=resultado.get("correo"),
+        top=resultado.get("top", [])
+    )
+
 # 🚀 Ejecutar servidor
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)

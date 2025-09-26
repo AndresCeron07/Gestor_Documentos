@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Perfil Empresa · {{ empresa }}{% endblock %}
+{% block content %}
+    <div class="perfil-container" style="max-width:900px; margin:40px auto; padding:30px; background:#fff; border-radius:12px; box-shadow:0 0 12px rgba(0,0,0,0.1);">
+        <div class="perfil-header" style="text-align:center; margin-bottom:30px;">
+            <h2>Perfil de empresa</h2>
+            <div style="margin-top:8px; color:#555;">
+                <strong>Empresa:</strong> {{ empresa }} · <strong>Vacante:</strong> {{ vacante }} · <strong>Contacto:</strong> {{ correo }}
+            </div>
+        </div>
+
+        <h3 style="color:#3498db; border-bottom:1px solid #ccc; padding-bottom:5px;">🏆 Top 10 candidatos</h3>
+        {% if top %}
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nombre</th>
+                    <th>Carrera</th>
+                    <th>Correo</th>
+                    <th>Score</th>
+                    <th>Razones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for c in top %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ c.nombre }}</td>
+                    <td>{{ c.carrera }}</td>
+                    <td>{{ c.correo }}</td>
+                    <td>{{ c.score }}%</td>
+                    <td>
+                        <ul style="margin:0; padding-left:18px;">
+                        {% for r in c.razones %}
+                            <li>{{ r }}</li>
+                        {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <p class="empty">No hay candidatos compatibles.</p>
+        {% endif %}
+    </div>
+{% endblock %}
