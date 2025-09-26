@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Gestor Documental{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+
+    <header>
+        <img src="{{ url_for('static', filename='logo_fusoft.jpeg') }}" alt="Logo fUSoft" style="height:72px;">
+        <h1>fUSoft</h1>
+        <p style="margin:6px 0 0; color:#555;">Fábrica Uniempresarial de Soluciones Tecnológicas</p>
+    </header>
+
+    <nav>
+        <a href="/" class="{% if request.path == '/' %}active{% endif %}">Inicio</a>
+        <a href="/candidatos" class="{% if request.path.startswith('/candidatos') %}active{% endif %}">Candidatos</a>
+        <a href="/empresas" class="{% if request.path.startswith('/empresas') %}active{% endif %}">Empresas</a>
+        <a href="/postulaciones" class="{% if request.path.startswith('/postulaciones') %}active{% endif %}">Postulaciones</a>
+        <a href="/emparejamientos" class="{% if request.path.startswith('/emparejamientos') %}active{% endif %}">Emparejamientos</a>
+        <a href="/subir" class="{% if request.path.startswith('/subir') %}active{% endif %}">Subir</a>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        © 2025 Uniempresarial · Sistema de Emparejamiento Automatizado
+    </footer>
+
+</body>
+</html>
+

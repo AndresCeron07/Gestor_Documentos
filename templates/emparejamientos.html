@@ -1,42 +1,19 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Emparejamientos · Gestor Documental Institucional</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-
-    <header>
-        <h1>Gestor Documental Institucional</h1>
-    </header>
-
-    <nav style="background-color:#2c3e50; padding:10px; text-align:center;">
-        <a href="/" style="color:white; margin:0 15px;">Inicio</a>
-        <a href="/candidatos" style="color:white; margin:0 15px;">Candidatos</a>
-        <a href="/empresas" style="color:white; margin:0 15px;">Empresas</a>
-        <a href="/postulaciones" style="color:white; margin:0 15px;">Postulaciones</a>
-    </nav>
-
-    <h2 style="background-color:#8e44ad; color:white; padding:15px; text-align:center;">
-        🔎 Filtros de emparejamiento
-    </h2>
-
-    <form method="get" style="text-align:center; margin:20px;">
+{% extends 'base.html' %}
+{% block title %}Emparejamientos · Gestor Documental{% endblock %}
+{% block content %}
+    <h2>🔎 Filtros de emparejamiento</h2>
+    <form method="get">
         <input type="text" name="carrera" placeholder="Filtrar por carrera" value="{{ carrera or '' }}">
         <input type="text" name="vacante" placeholder="Filtrar por vacante" value="{{ vacante or '' }}">
         <input type="number" name="minimo" placeholder="Score mínimo" value="{{ minimo or 0 }}" step="1" min="0" max="100">
         <button type="submit">Aplicar filtros</button>
     </form>
 
-    <h2 style="background-color:#9b59b6; color:white; padding:15px; text-align:center;">
-        🔗 Emparejamientos por Candidato
-    </h2>
-
-    <div style="width:90%; margin:auto;">
+    <h2>🔗 Emparejamientos por Candidato</h2>
+    <div class="container">
     {% for r in resultados_candidatos %}
         <div style="margin-bottom:30px;">
-            <h3 style="color:#2c3e50;">👤 {{ r.candidato }} <span style="font-weight:normal;">({{ r.carrera }})</span></h3>
+            <h3>👤 {{ r.candidato }} <span style="font-weight:normal;">({{ r.carrera }})</span></h3>
             {% if r.compatibles %}
                 <ul>
                 {% for c in r.compatibles %}
@@ -54,20 +31,17 @@
                 {% endfor %}
                 </ul>
             {% else %}
-                <p>❌ Sin empresas compatibles</p>
+                <p class="empty">Sin empresas compatibles.</p>
             {% endif %}
         </div>
     {% endfor %}
     </div>
 
-    <h2 style="background-color:#3498db; color:white; padding:15px; text-align:center;">
-        🔗 Emparejamientos por Empresa
-    </h2>
-
-    <div style="width:90%; margin:auto;">
+    <h2>🔗 Emparejamientos por Empresa</h2>
+    <div class="container">
     {% for r in resultados_empresas %}
         <div style="margin-bottom:30px;">
-            <h3 style="color:#2c3e50;">🏢 {{ r.candidato }} <span style="font-weight:normal;">({{ r.vacante }})</span></h3>
+            <h3>🏢 {{ r.candidato }} <span style="font-weight:normal;">({{ r.vacante }})</span></h3>
             {% if r.compatibles %}
                 <ul>
                 {% for c in r.compatibles %}
@@ -85,15 +59,9 @@
                 {% endfor %}
                 </ul>
             {% else %}
-                <p>❌ Sin candidatos compatibles</p>
+                <p class="empty">Sin candidatos compatibles.</p>
             {% endif %}
         </div>
     {% endfor %}
     </div>
-
-    <footer style="text-align:center; padding:20px; font-size:14px; color:#888;">
-        © 2025 Uniempresarial · Sistema de Emparejamiento Automatizado
-    </footer>
-
-</body>
-</html>
+{% endblock %}

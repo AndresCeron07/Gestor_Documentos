@@ -1,41 +1,29 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Confirmación · Documentos Subidos</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-
-    <header>
-        <h1>Gestor Documental Institucional</h1>
-    </header>
-
-    <h2 style="text-align:center; color:#27ae60;">✅ Documentos subidos correctamente</h2>
+{% extends 'base.html' %}
+{% block title %}Confirmación · Documentos Subidos{% endblock %}
+{% block content %}
+    <h2 style="color:#27ae60;">✅ Documentos subidos correctamente</h2>
     <p style="text-align:center;">Tipo: <strong>{{ tipo }}</strong></p>
 
+    {% if nombres %}
     <ul style="text-align:center; list-style:none; padding:0;">
         {% for nombre in nombres %}
             <li>📄 {{ nombre }}</li>
         {% endfor %}
     </ul>
+    {% endif %}
 
     {% if emparejamientos %}
-    <h2 style="background-color:#2980b9; color:white; padding:15px; text-align:center;">
-        🔗 Emparejamientos generados automáticamente
-    </h2>
-
-    <div style="width:90%; margin:auto;">
+    <h2>🔗 Emparejamientos generados automáticamente</h2>
+    <div class="container">
     {% for r in emparejamientos %}
         <div style="margin-bottom:30px;">
-            <h3 style="color:#2c3e50;">
+            <h3>
                 {% if modo == "candidato" %}
                     👤 {{ r.candidato }} <span style="font-weight:normal;">({{ r.carrera }})</span>
                 {% else %}
                     🏢 {{ r.candidato }} <span style="font-weight:normal;">({{ r.vacante }})</span>
                 {% endif %}
             </h3>
-
             {% if r.compatibles %}
                 <ul>
                 {% for c in r.compatibles %}
@@ -52,7 +40,7 @@
                 {% endfor %}
                 </ul>
             {% else %}
-                <p>❌ Sin coincidencias</p>
+                <p class="empty">Sin coincidencias.</p>
             {% endif %}
         </div>
     {% endfor %}
@@ -62,10 +50,4 @@
     <div style="text-align:center; margin-top:30px;">
         <a href="/"><button>Volver al inicio</button></a>
     </div>
-
-    <footer style="text-align:center; padding:20px; font-size:14px; color:#888;">
-        © 2025 Uniempresarial · Sistema de Emparejamiento Automatizado
-    </footer>
-
-</body>
-</html>
+{% endblock %}

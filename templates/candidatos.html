@@ -1,33 +1,14 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Candidatos · Gestor Documental Institucional</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Candidatos · Gestor Documental{% endblock %}
+{% block content %}
+    <h2>👤 Candidatos registrados</h2>
 
-    <header>
-        <h1>Gestor Documental Institucional</h1>
-    </header>
-
-    <nav style="background-color:#2c3e50; padding:10px; text-align:center;">
-        <a href="/" style="color:white; margin:0 15px;">Inicio</a>
-        <a href="/candidatos" style="color:white; margin:0 15px;">Candidatos</a>
-        <a href="/empresas" style="color:white; margin:0 15px;">Empresas</a>
-        <a href="/postulaciones" style="color:white; margin:0 15px;">Postulaciones</a>
-        <a href="/emparejamientos?modo=candidato" style="color:white; margin:0 15px;">Emparejamientos</a>
-    </nav>
-
-    <h2 style="background-color:#3498db; color:white; padding:15px; text-align:center;">
-        👤 Candidatos registrados
-    </h2>
-
-    <form method="get" style="text-align:center; margin-bottom:20px;">
-        <input type="text" name="carrera" placeholder="Filtrar por carrera">
+    <form method="get">
+        <input type="text" name="carrera" placeholder="Filtrar por carrera" value="{{ request.args.get('carrera', '') }}">
         <button type="submit">Filtrar</button>
     </form>
 
+    {% if candidatos %}
     <table>
         <thead>
             <tr>
@@ -43,17 +24,12 @@
                 <td>{{ c["nombre"] }}</td>
                 <td>{{ c["carrera"] }}</td>
                 <td>{{ c["correo"] }}</td>
-                <td>
-                    <a href="{{ url_for('perfil', file_id=c["_id"]) }}">Ver perfil</a>
-                </td>
+                <td><a href="{{ url_for('perfil', file_id=c["_id"]) }}">Ver perfil</a></td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-
-    <footer style="text-align:center; padding:20px; font-size:14px; color:#888;">
-        © 2025 Uniempresarial · Sistema de Emparejamiento Automatizado
-    </footer>
-
-</body>
-</html>
+    {% else %}
+        <p class="empty">No hay candidatos registrados.</p>
+    {% endif %}
+{% endblock %}
