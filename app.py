@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
+from dotenv import load_dotenv
+load_dotenv()
 from datetime import datetime
 import gridfs
 from bson import ObjectId
@@ -18,6 +20,7 @@ from analizador.gemini_api import (
 )
 
 app = Flask(__name__)
+app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024  # 16 MB
 
 # 🏠 Página principal con métricas
 @app.route("/")
@@ -29,7 +32,7 @@ def index():
     return render_template("index.html",
         total_candidatos=db_candidatos.fs.files.count_documents({}),
         total_empresas=db_empresas.fs.files.count_documents({}),
-        total_postulaciones=db_postulaciones.fs.files.count_documents({})
+        total_postulaciones=db_postulaciones["postulaciones"].count_documents({})
     )
 
 # 👤 Vista de candidatos
@@ -115,6 +118,24 @@ def subir_hojas():
         nombres=nombres_subidos,
         emparejamientos=emparejamientos,
         modo="candidato" if tipo == "hoja_vida" else "empresa"
+    )
+
+# 🔗 Vista de emparejamientos agregados
+@app.route("/emparejamientos")
+def emparejamientos():
+    from consultas.emparejar import emparejar_web
+    modo = request.args.get("modo", "candidato")
+    minimo = request.args.get("minimo", type=float, default=0)
+    resultados = emparejar_web(modo)
+    # Obtener también el otro modo para la plantilla compuesta
+    resultados_alt = emparejar_web("empresa" if modo == "candidato" else "candidato")
+    return render_template(
+        "emparejamientos.html",
+        resultados_candidatos=resultados if modo == "candidato" else resultados_alt,
+        resultados_empresas=resultados if modo == "empresa" else resultados_alt,
+        minimo=minimo,
+        carrera=request.args.get("carrera"),
+        vacante=request.args.get("vacante")
     )
 
 # ✅ Confirmación visual tras carga múltiple

@@ -3,12 +3,13 @@ from datetime import datetime, timezone
 import unicodedata
 from difflib import SequenceMatcher
 import gridfs
+from pymongo.errors import DuplicateKeyError
 
 # 🔤 Normaliza texto eliminando acentos y convirtiendo a minúsculas
 def normalizar(texto):
     if not texto:
         return ""
-    return unicodedata.normalize("NFKD", texto.lower()).encode("ASCII", "ignore").decode("utf-8")
+    return unicodedata.normalize("NFKD", str(texto).lower()).encode("ASCII", "ignore").decode("utf-8")
 
 # 🔍 Evalúa similitud entre dos textos con umbral configurable
 def similar(a, b, threshold=0.6):
@@ -20,7 +21,8 @@ def coincide(valor, lista, threshold=0.6):
 
 # 📄 Extrae perfil de documento
 def extraer_perfil(doc):
-    datos = doc.metadata.get("extraido", {})
+    # Soporta GridOut (doc.metadata) o dict de fs.files (doc["metadata"])        
+    datos = getattr(doc, "metadata", None) or doc.get("metadata", {})
     nombre = datos.get("nombre", "Sin nombre")
     correo_raw = datos.get("correo")
     correo = correo_raw.strip().lower() if correo_raw else f"{normalizar(nombre).replace(' ', '_')}@demo.local"
@@ -30,7 +32,7 @@ def extraer_perfil(doc):
 
 # 📄 Extrae datos de vacante
 def extraer_vacante(doc):
-    datos = doc.metadata.get("extraido", {})
+    datos = getattr(doc, "metadata", None) or doc.get("metadata", {})
     empresa = datos.get("empresa", "Empresa sin nombre")
     vacante = datos.get("vacante", "Sin vacante")
     vacante_norm = normalizar(vacante)
@@ -42,34 +44,29 @@ def extraer_vacante(doc):
 # 📨 Registra una postulación evitando duplicados
 def registrar_postulacion(correo_candidato, correo_empresa, vacante, empresa, score):
     db = get_db("postulaciones")
+    col = db["postulaciones"]
     vacante_norm = normalizar(vacante)
     empresa_norm = normalizar(empresa)
-    correo_norm = correo_candidato.strip().lower() if correo_candidato else "sin_correo@demo.local"
+    correo_norm = (correo_candidato or "").strip().lower() or "sin_correo@demo.local"
 
-    ya_existe = db.fs.files.find_one({
-        "metadata.correo_candidato": correo_norm,
-        "metadata.empresa": empresa_norm,
-        "metadata.vacante": vacante_norm
-    })
-
-    if ya_existe:
-        return False
-
-    registro = {
-        "correo_candidato": correo_norm,
-        "correo_empresa": correo_empresa.strip().lower(),
-        "vacante": vacante,
+    doc = {
+        "correo_candidato": correo_candidato,
+        "correo_candidato_norm": correo_norm,
+        "correo_empresa": (correo_empresa or "").strip().lower(),
         "empresa": empresa,
+        "empresa_norm": empresa_norm,
+        "vacante": vacante,
+        "vacante_norm": vacante_norm,
         "score": score,
         "estado": "En revisión",
         "fecha": datetime.now(timezone.utc)
     }
 
-    db.fs.files.insert_one({
-        "filename": f"postulacion_{correo_norm}_{vacante_norm}",
-        "metadata": registro
-    })
-    return True
+    try:
+        col.insert_one(doc)
+        return True
+    except DuplicateKeyError:
+        return False
 
 # 🧠 Evalúa compatibilidad entre perfil y contexto
 def evaluar_compatibilidad(carrera, conocimientos, contexto, vacante):
@@ -94,11 +91,9 @@ def emparejar_web(modo="candidato"):
     db_candidatos = get_db("hoja_vida")
     db_empresas = get_db("solicitud_empresa")
 
-    fs_candidatos = gridfs.GridFS(db_candidatos)
-    fs_empresas = gridfs.GridFS(db_empresas)
-
-    fuentes = [fs_candidatos.get(f["_id"]) for f in db_candidatos.fs.files.find()] if modo == "candidato" else [fs_empresas.get(f["_id"]) for f in db_empresas.fs.files.find()]
-    destinos = [fs_empresas.get(d["_id"]) for d in db_empresas.fs.files.find()] if modo == "candidato" else [fs_candidatos.get(d["_id"]) for d in db_candidatos.fs.files.find()]
+    # Leer solo metadatos, evitar fs.get para rendimiento
+    fuentes = list(db_candidatos.fs.files.find({}, {"metadata": 1, "filename": 1})) if modo == "candidato" else list(db_empresas.fs.files.find({}, {"metadata": 1, "filename": 1}))
+    destinos = list(db_empresas.fs.files.find({}, {"metadata": 1, "filename": 1})) if modo == "candidato" else list(db_candidatos.fs.files.find({}, {"metadata": 1, "filename": 1}))
 
     resultados = []
 
@@ -111,13 +106,7 @@ def emparejar_web(modo="candidato"):
             score, score_pct, razones = evaluar_compatibilidad(carrera, conocimientos, contexto, vacante_norm)
 
             if score >= 2:
-                registrado = registrar_postulacion(
-                    correo if modo == "candidato" else correo,
-                    correo_empresa,
-                    vacante,
-                    empresa,
-                    score_pct
-                )
+                registrado = registrar_postulacion(correo, correo_empresa, vacante, empresa, score_pct)
 
                 if registrado:
                     compatibles.append({
@@ -142,8 +131,7 @@ def emparejar_web(modo="candidato"):
 def emparejar_individual_candidato(doc):
     nombre, correo, carrera, conocimientos = extraer_perfil(doc)
     db_empresas = get_db("solicitud_empresa")
-    fs_empresas = gridfs.GridFS(db_empresas)
-    empresas = [fs_empresas.get(e["_id"]) for e in db_empresas.fs.files.find()]
+    empresas = list(db_empresas.fs.files.find({}, {"metadata": 1, "filename": 1}))
 
     resultados = []
 
@@ -172,8 +160,7 @@ def emparejar_individual_candidato(doc):
 def emparejar_individual_empresa(doc):
     empresa, vacante, vacante_norm, contexto, correo_empresa = extraer_vacante(doc)
     db_candidatos = get_db("hoja_vida")
-    fs_candidatos = gridfs.GridFS(db_candidatos)
-    candidatos = [fs_candidatos.get(c["_id"]) for c in db_candidatos.fs.files.find()]
+    candidatos = list(db_candidatos.fs.files.find({}, {"metadata": 1, "filename": 1}))
 
     resultados = []
 
