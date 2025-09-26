@@ -1,0 +1,180 @@
+/* 🎨 Paleta institucional */
+:root {
+    --rojo-uniempresarial: #c0392b;
+    --azul-uniempresarial: #2c3e50;
+    --gris-claro: #ecf0f1;
+    --verde-validacion: #27ae60;
+    --verde-hover: #1e8449;
+    --azul-boton: #3498db;
+    --azul-hover: #2980b9;
+    --fondo-general: #f9fbfc;
+    --texto-principal: #333;
+}
+
+/* 🧱 Estructura base */
+body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background-color: var(--fondo-general);
+    margin: 0;
+    padding: 0;
+    color: var(--texto-principal);
+}
+
+/* 🏛️ Encabezado institucional */
+header {
+    background-color: #ffffff;
+    border-bottom: 3px solid var(--rojo-uniempresarial);
+    padding: 20px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 28px;
+    margin: 0;
+    color: var(--rojo-uniempresarial);
+}
+
+h2, h3 {
+    color: var(--azul-uniempresarial);
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* 🧭 Navegación */
+nav {
+    background-color: var(--azul-uniempresarial);
+    padding: 10px;
+    text-align: center;
+}
+
+nav a {
+    color: white;
+    margin: 0 15px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+nav a:hover {
+    color: var(--rojo-uniempresarial);
+}
+
+/* 📦 Panel de botones */
+.menu {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin: 30px auto;
+    max-width: 900px;
+}
+
+.menu a {
+    text-align: center;
+    text-decoration: none;
+}
+
+button {
+    background-color: var(--rojo-uniempresarial);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+    background-color: #a93226;
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 📊 Tablas */
+table {
+    width: 90%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0,0,0,0.05);
+}
+
+th, td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: var(--azul-uniempresarial);
+    color: white;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+tr:hover {
+    background-color: var(--gris-claro);
+}
+
+/* 📝 Formularios */
+form {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+select, input[type="text"], input[type="file"] {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    min-width: 200px;
+}
+
+input[type="submit"], button[type="submit"] {
+    background-color: var(--verde-validacion);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+input[type="submit"]:hover, button[type="submit"]:hover {
+    background-color: var(--verde-hover);
+}
+
+/* 📈 Panel de métricas */
+.metric-box {
+    background-color: var(--gris-claro);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 200px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.metric-box h3 {
+    margin-bottom: 10px;
+    color: var(--azul-uniempresarial);
+}
+
+.metric-box p {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--rojo-uniempresarial);
+}
+
+/* 📜 Footer */
+footer {
+    background-color: #fdfdfd;
+    border-top: 2px solid var(--rojo-uniempresarial);
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: #555;
+}

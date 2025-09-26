@@ -1,0 +1,7 @@
+pymongo
+gridfs
+PyMuPDF
+python-docx
+google-generativeai
+pillow
+pytesseract
