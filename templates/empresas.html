@@ -15,7 +15,7 @@
         <tbody>
             {% for e in empresas %}
             <tr>
-                <td><a href="{{ url_for('perfil_empresa', file_id=e._id) }}">{{ e.empresa }}</a></td>
+                <td><a href="{{ url_for('perfil_empresa', file_id=e["_id"]) }}">{{ e.empresa }}</a></td>
                 <td>{{ e.vacante }}</td>
                 <td>{{ e.correo }}</td>
             </tr>
